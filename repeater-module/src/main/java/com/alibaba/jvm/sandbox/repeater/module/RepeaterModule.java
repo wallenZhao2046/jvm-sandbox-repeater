@@ -66,51 +66,57 @@ public class RepeaterModule implements Module, ModuleLifecycle {
     private final static Logger log = LoggerFactory.getLogger(RepeaterModule.class);
 
     @Resource
-    private ModuleEventWatcher eventWatcher;
+    private ModuleEventWatcher eventWatcher; //事件观察者
 
     @Resource
-    private ModuleController moduleController;
+    private ModuleController moduleController; //模块控制接口, 控制模块的激活和冻结
 
     @Resource
-    private ConfigInfo configInfo;
+    private ConfigInfo configInfo; //sandbox启动配置, 这里只用来判断启动模式
 
     @Resource
     private ModuleManager moduleManager;
 
     @Resource
-    private LoadedClassDataSource loadedClassDataSource;
+    private LoadedClassDataSource loadedClassDataSource; //已加载类数据源, 可以获取到所有已加载类的集合
 
-    private Broadcaster broadcaster;
+    private Broadcaster broadcaster; //消息广播服务, 用于采集流量之后的消息分发 (保存录制记录, 保存回放结果, 拉取录制记录)
 
-    private InvocationListener invocationListener;
+    private InvocationListener invocationListener; //调用监听器
 
-    private ConfigManager configManager;
+    private ConfigManager configManager; //配置管理器, 实现拉取配置
 
-    private LifecycleManager lifecycleManager;
+    private LifecycleManager lifecycleManager; //插件加载器
 
-    private List<InvokePlugin> invokePlugins;
+    private List<InvokePlugin> invokePlugins; //插件列表
 
-    private HeartbeatHandler heartbeatHandler;
+    private HeartbeatHandler heartbeatHandler; //心跳处理器
 
-    private AtomicBoolean initialized = new AtomicBoolean(false);
+    private AtomicBoolean initialized = new AtomicBoolean(false); //是否完成初始化的标志
 
     @Override
     public void onLoad() throws Throwable {
+        //模块加载, 模块开始加载之前
         // 初始化日志框架
         LogbackUtils.init(PathUtils.getConfigPath() + "/repeater-logback.xml");
+        //获取启动模式
         Mode mode = configInfo.getMode();
         log.info("module on loaded,id={},version={},mode={}", com.alibaba.jvm.sandbox.repeater.module.Constants.MODULE_ID, com.alibaba.jvm.sandbox.repeater.module.Constants.VERSION, mode);
         /* agent方式启动 */
         if (mode == Mode.AGENT && Boolean.valueOf(PropertyUtil.getPropertyOrDefault(REPEAT_SPRING_ADVICE_SWITCH, ""))) {
             log.info("agent launch mode,use Spring Instantiate Advice to register bean.");
+            //SpringContext内部容器的是否agent模式设置为真
             SpringContextInnerContainer.setAgentLaunch(true);
+            //Spring初始化拦截器, agent启动模式下拦截记录 beanName和bean
             SpringInstantiateAdvice.watcher(this.eventWatcher).watch();
+            //激活模块
             moduleController.active();
         }
     }
 
     @Override
     public void onUnload() throws Throwable {
+        //释放插件加载资源, 尽可能关闭 pluginClassLoader
         if (lifecycleManager != null) {
             lifecycleManager.release();
         }
@@ -119,11 +125,13 @@ public class RepeaterModule implements Module, ModuleLifecycle {
 
     @Override
     public void onActive() throws Throwable {
+        //模块激活, 打印日志
         log.info("onActive");
     }
 
     @Override
     public void onFrozen() throws Throwable {
+        //模块冻结
         log.info("onFrozen");
     }
 
@@ -182,10 +190,10 @@ public class RepeaterModule implements Module, ModuleLifecycle {
                 List<Repeater> repeaters = lifecycleManager.loadRepeaters();
                 for (Repeater repeater : repeaters) {
                     if (repeater.enable(config)) {
-                        repeater.setBroadcast(broadcaster);
+                        repeater.setBroadcast(broadcaster);  // 注入广播器?
                     }
                 }
-                RepeaterBridge.instance().build(repeaters);
+                RepeaterBridge.instance().build(repeaters); // 通过RepeaterBridge 桥接器创建repeater 回放器
                 // 装载消息订阅器
                 List<SubscribeSupporter> subscribes = lifecycleManager.loadSubscribes();
                 for (SubscribeSupporter subscribe : subscribes) {
@@ -199,6 +207,16 @@ public class RepeaterModule implements Module, ModuleLifecycle {
         }
     }
 
+    /*
+     这个是repeat module接收回放请求的接口
+
+     该接口接收http请求, 然后发出RepeatEvent, 由EventBusInner发出Event
+
+     问题:
+        command为啥是对外http接口?
+
+
+     */
     /**
      * 回放http接口
      *

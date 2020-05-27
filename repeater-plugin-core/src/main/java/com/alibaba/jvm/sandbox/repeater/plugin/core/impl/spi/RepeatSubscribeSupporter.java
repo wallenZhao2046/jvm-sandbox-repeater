@@ -45,6 +45,11 @@ public class RepeatSubscribeSupporter implements SubscribeSupporter<RepeatEvent>
         return "repeat-register";
     }
 
+
+    /*
+        处理 Event的Observer
+
+     */
     @AllowConcurrentEvents
     @Subscribe
     @Override
@@ -58,8 +63,10 @@ public class RepeatSubscribeSupporter implements SubscribeSupporter<RepeatEvent>
             }
             log.info("subscribe success params={}", req);
             final RepeatMeta meta = SerializerWrapper.hessianDeserialize(data, RepeatMeta.class);
+            // Broadcaster 是干什么的, pullRecord是从console拉record吗?
             RepeaterResult<RecordModel> pr = StandaloneSwitch.instance().getBroadcaster().pullRecord(meta);
             if (pr.isSuccess()){
+                // DefaultFlowDispatcher 是做什么用的?
                 DefaultFlowDispatcher.instance().dispatch(meta, pr.getData());
             } else {
                 log.error("subscribe replay event failed, cause ={}", pr.getMessage());

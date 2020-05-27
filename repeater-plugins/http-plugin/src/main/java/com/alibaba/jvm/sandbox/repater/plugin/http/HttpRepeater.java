@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link HttpRepeater} HTTP类型入口回放器;
+ * {@link HttpRepeater} HTTP类型入口回放器; //HTTP回放器
  * <p>
  *
  * @author zhaoyb1990
  */
-@MetaInfServices(Repeater.class)
+@MetaInfServices(Repeater.class) // SPI annotation 标识回放器
 public class HttpRepeater extends AbstractRepeater {
 
     @Override
@@ -33,7 +33,7 @@ public class HttpRepeater extends AbstractRepeater {
         HttpInvocation hi = (HttpInvocation) invocation;
         Map<String, String> extra = new HashMap<String, String>(2);
         // 透传当前生成的traceId到http线程 HttpStandaloneListener#initConetxt
-        extra.put(Constants.HEADER_TRACE_ID, context.getTraceId());
+        extra.put(Constants.HEADER_TRACE_ID, context.getTraceId()); //透传traceID
         // 直接访问本机,默认全都走http，不关心protocol
         StringBuilder builder = new StringBuilder()
                 .append("http")

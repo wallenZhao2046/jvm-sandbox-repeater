@@ -5,7 +5,7 @@ import com.alibaba.jvm.sandbox.repeater.plugin.domain.RepeatMeta;
 import com.alibaba.jvm.sandbox.repeater.plugin.exception.RepeatException;
 
 /**
- * {@link FlowDispatcher} 流量分配器，用于分配回放流量到指定的回放器
+ * {@link FlowDispatcher} 流量分配器，用于分配回放流量到指定的回放器 // 分配流量到回放器
  * <p>
  *
  * @author zhaoyb1990

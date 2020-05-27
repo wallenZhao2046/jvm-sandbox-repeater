@@ -4,6 +4,7 @@ import com.alibaba.jvm.sandbox.repeater.plugin.domain.RepeaterResult;
 import com.alibaba.repeater.console.common.domain.ReplayBO;
 import com.alibaba.repeater.console.common.params.ReplayParams;
 import com.alibaba.repeater.console.service.ReplayService;
+import com.alibaba.repeater.console.service.convert.ReplayConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,6 +26,9 @@ public class ReplayController {
     @Resource
     private ReplayService replayService;
 
+    @Resource
+    private ReplayConverter replayConverter;
+
     @RequestMapping("detail.htm")
     public String detail(@ModelAttribute("requestParams") ReplayParams params, Model model) {
         RepeaterResult<ReplayBO> result = replayService.query(params);
@@ -35,6 +39,14 @@ public class ReplayController {
         model.addAttribute("record", result.getData().getRecord());
         return "/replay/detail";
     }
+
+    @RequestMapping("get_detail")
+    public String detailJson(@ModelAttribute("requestParams") ReplayParams params) {
+        RepeaterResult<ReplayBO> result = replayService.query(params);
+
+        return result.getMessage();
+    }
+
 
     @RequestMapping("execute.json")
     @ResponseBody

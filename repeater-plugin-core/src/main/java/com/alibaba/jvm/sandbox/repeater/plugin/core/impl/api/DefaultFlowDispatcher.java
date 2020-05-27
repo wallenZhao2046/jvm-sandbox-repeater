@@ -11,7 +11,7 @@ import com.alibaba.jvm.sandbox.repeater.plugin.exception.RepeatException;
 import com.alibaba.jvm.sandbox.repeater.plugin.spi.Repeater;
 
 /**
- * {@link DefaultFlowDispatcher} 默认的流量分配器实现
+ * {@link DefaultFlowDispatcher} 默认的流量分配器实现 // 流量分配器的实现
  * <p>
  *
  * @author zhaoyb1990
@@ -33,6 +33,7 @@ public class DefaultFlowDispatcher implements FlowDispatcher {
         if (recordModel == null || recordModel.getEntranceInvocation() == null || recordModel.getEntranceInvocation().getType() == null) {
             throw new RepeatException("invalid request, record or root invocation is null");
         }
+        // RepeaterBridge 生成的回放器?
         Repeater repeater = RepeaterBridge.instance().select(recordModel.getEntranceInvocation().getType());
         if (repeater == null) {
             throw new RepeatException("no valid repeat found for invoke type:" + recordModel.getEntranceInvocation().getType());

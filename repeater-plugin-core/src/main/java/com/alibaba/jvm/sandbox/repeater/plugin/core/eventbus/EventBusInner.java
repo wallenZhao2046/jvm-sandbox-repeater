@@ -18,12 +18,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhaoyb1990
  */
+/*
+ 由 google 的Guava-EventBus 实现的消息发布 - 订阅类库 EventBus 观察者模式的实现
+
+ 观察者注册 / 消息发布 / 消息通知给观察者
+
+ EventBus 是将消息队列放入内存中的, 如果系统重启之后, 保存或者堆积在队列里的消息丢失, 未回放的请求失效
+
+ */
 public class EventBusInner {
 
     private final static Logger log = LoggerFactory.getLogger(EventBusInner.class);
 
     /**
-     * 回放反序列化开销很大，cpu密集，线程池大小设置成核心数 - 1
+     * 回放反序列化开销很大，cpu密集，线程池大小设置成核心数 - 1 // 所以这里必须保证回放的CPU核数要大于等于2
      */
     private final static ExecutorService executor = new ThreadPoolExecutor(
         Runtime.getRuntime().availableProcessors() - 1,

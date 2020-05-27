@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@link RegressController} 持续回归demo服务
@@ -29,6 +30,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/regress")
 public class RegressController {
+
+    private AtomicInteger sequence = new AtomicInteger(0);
 
     @Resource
     private RegressService regressService;
@@ -60,7 +63,13 @@ public class RegressController {
      */
     @RequestMapping(value = "/slogan", method = RequestMethod.GET)
     public String slogan() {
-        return "<h1 align=\"center\" style=\"color:red;margin-top:300px\">" + regressService.slogan() + "</h1>";
+        int mode = sequence.getAndIncrement() % 2;
+        if (mode == 0){
+            return "Regression!!!!!";
+        }else{
+            return "<h1 align=\"center\" style=\"color:red;margin-top:300px\">" + regressService.slogan() + "</h1>";
+        }
+
     }
 
     /**

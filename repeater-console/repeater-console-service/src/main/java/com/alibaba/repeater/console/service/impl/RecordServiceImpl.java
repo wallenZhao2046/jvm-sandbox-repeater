@@ -14,10 +14,13 @@ import com.alibaba.repeater.console.common.domain.RecordDetailBO;
 import com.alibaba.repeater.console.common.domain.ReplayStatus;
 import com.alibaba.repeater.console.common.params.RecordParams;
 import com.alibaba.repeater.console.dal.dao.RecordDao;
+import com.alibaba.repeater.console.dal.dao.ReplayDao;
 import com.alibaba.repeater.console.dal.model.Record;
 import com.alibaba.repeater.console.dal.model.Replay;
 import com.alibaba.repeater.console.service.RecordService;
+import com.alibaba.repeater.console.service.convert.DifferenceConvert;
 import com.alibaba.repeater.console.service.convert.ModelConverter;
+import com.alibaba.repeater.console.service.convert.ReplayConverter;
 import com.alibaba.repeater.console.service.util.ConvertUtil;
 import com.alibaba.repeater.console.service.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,12 @@ public class RecordServiceImpl implements RecordService {
     private ModelConverter<Record, RecordBO> recordConverter;
     @Resource
     private ModelConverter<Record, RecordDetailBO> recordDetailConverter;
+
+    @Resource
+    private ReplayDao replayDao;
+
+    @Resource
+    private ReplayConverter replayConverter;
 
     @Override
     public RepeaterResult<String> saveRecord(String body) {
@@ -95,6 +104,10 @@ public class RecordServiceImpl implements RecordService {
 
     @Override
     public RepeaterResult<RepeatModel> callback(String repeatId) {
-        return null;
+        Replay replay = replayDao.findByRepeatId(repeatId);
+        if (replay == null) {
+            return RepeaterResult.builder().message("data not exist").build();
+        }
+        return RepeaterResult.builder().success(true).data(replayConverter.convert(replay)).build();
     }
 }
