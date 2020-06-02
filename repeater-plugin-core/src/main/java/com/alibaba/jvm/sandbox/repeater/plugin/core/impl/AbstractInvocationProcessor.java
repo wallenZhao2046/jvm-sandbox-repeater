@@ -44,6 +44,7 @@ public abstract class AbstractInvocationProcessor implements InvocationProcessor
         return event.throwable;
     }
 
+    // zwl: mock的实际实现类
     @Override
     public void doMock(BeforeEvent event, Boolean entrance, InvokeType type) throws ProcessControlException {
         /*
@@ -102,6 +103,7 @@ public abstract class AbstractInvocationProcessor implements InvocationProcessor
         return invocation.getResponse();
     }
 
+    // invocation的Identity, typ, classname, methodname, methodDesc
     @Override
     public Identity assembleIdentity(BeforeEvent event) {
         return new Identity(getType().name(), event.javaClassName, event.javaMethodName + "~" + event.javaMethodDesc, getExtra());

@@ -33,14 +33,15 @@ public class DefaultFlowDispatcher implements FlowDispatcher {
         if (recordModel == null || recordModel.getEntranceInvocation() == null || recordModel.getEntranceInvocation().getType() == null) {
             throw new RepeatException("invalid request, record or root invocation is null");
         }
-        // RepeaterBridge 生成的回放器?
+        //zwl: RepeaterBridge 生成的回放器?
         Repeater repeater = RepeaterBridge.instance().select(recordModel.getEntranceInvocation().getType());
         if (repeater == null) {
             throw new RepeatException("no valid repeat found for invoke type:" + recordModel.getEntranceInvocation().getType());
         }
-        RepeatContext context = new RepeatContext(meta, recordModel, TraceGenerator.generate());
+        // zwl: 在这里生成traceId
+        RepeatContext context = new RepeatContext(meta, recordModel, TraceGenerator.generate()); // zwl: traceId
         // 放置到回放缓存中
-        RepeatCache.putRepeatContext(context);
+        RepeatCache.putRepeatContext(context); // zwl: 放入缓存
         repeater.repeat(context);
     }
 }

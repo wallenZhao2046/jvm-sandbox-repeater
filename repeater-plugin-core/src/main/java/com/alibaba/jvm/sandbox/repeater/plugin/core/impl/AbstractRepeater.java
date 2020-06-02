@@ -33,7 +33,7 @@ public abstract class AbstractRepeater implements Repeater {
         record.setRepeatId(context.getMeta().getRepeatId());
         record.setTraceId(context.getTraceId());
         try {
-            // 根据之前生成的traceId开启追踪
+            // 根据之前生成的traceId开启追踪 //zwl:
             Tracer.start(context.getTraceId());
             // before invoke advice
             RepeatInterceptorFacade.instance().beforeInvoke(context.getRecordModel());

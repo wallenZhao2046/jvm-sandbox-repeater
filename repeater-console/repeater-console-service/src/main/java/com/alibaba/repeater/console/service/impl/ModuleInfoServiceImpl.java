@@ -102,6 +102,7 @@ public class ModuleInfoServiceImpl implements ModuleInfoService {
         return execute(frozenURI, params, ModuleStatus.FROZEN);
     }
 
+    // zwl: in product usage, should enhance, 这里的安装是假的, 没做什么事
     @Override
     public RepeaterResult<String> install(ModuleInfoParams params) {
         // this is a fake local implement; must be overwrite in product usage;

@@ -34,6 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author zhaoyb1990
  */
+
+// zwl: 事件监听器的实现, 执行录制或者回放的入口, 核心类
 public class DefaultEventListener implements EventListener {
 
     protected static Logger log = LoggerFactory.getLogger(DefaultEventListener.class);
@@ -66,6 +68,7 @@ public class DefaultEventListener implements EventListener {
     @Override
     public void onEvent(Event event) throws Throwable {
         try {
+            // zwl : 逐级过滤 event
             /*
              * event过滤；针对单个listener，只处理top的事件
              */
@@ -135,7 +138,7 @@ public class DefaultEventListener implements EventListener {
             ApplicationModel.instance().exceptionOverflow(throwable);
         } finally {
             /*
-             * 入口插件 && 完成事件
+             * 入口插件 && 完成事件 zwl: 处理完后清理context
              */
             clearContext(event);
         }
@@ -146,14 +149,17 @@ public class DefaultEventListener implements EventListener {
      *
      * @param event before事件
      */
+    // zwl: 在before中回放记录
     protected void doBefore(BeforeEvent event) throws ProcessControlException {
-        // 回放流量；如果是入口则放弃；子调用则进行mock
+        // 回放流量；如果是入口则放弃；子调用则进行mock // zwl: 如果识别是回放repeatFlow???
         if (RepeatCache.isRepeatFlow(Tracer.getTraceId())) {
-            processor.doMock(event, entrance, invokeType);
+            processor.doMock(event, entrance, invokeType); // zwl: doMock
             return;
         }
+        // zwl: 下边是对不是回放流量的处理, 将invocation 初始化
         Invocation invocation = initInvocation(event);
         invocation.setStart(System.currentTimeMillis());
+        // zwl: 这里的traceId来自 initContext中的 Trace.start() ????
         invocation.setTraceId(Tracer.getTraceId());
         invocation.setIndex(entrance ? 0 : SequenceGenerator.generate(Tracer.getTraceId()));
         invocation.setIdentity(processor.assembleIdentity(event));
@@ -173,7 +179,7 @@ public class DefaultEventListener implements EventListener {
             Tracer.getContext().setSampled(false);
             log.error("Error occurred serialize", e);
         }
-        RecordCache.cacheInvocation(event.invokeId, invocation);
+        RecordCache.cacheInvocation(event.invokeId, invocation); // 将调用记录在recordCache中
     }
 
     /**
@@ -208,16 +214,18 @@ public class DefaultEventListener implements EventListener {
      * @param event return事件
      */
     protected void doReturn(ReturnEvent event) {
+        // zwl 如果在 repeatCache中发现是repeatFlow, 这是一个回放流量
         if (RepeatCache.isRepeatFlow(Tracer.getTraceId())) {
             return;
         }
-        Invocation invocation = RecordCache.getInvocation(event.invokeId);
+        Invocation invocation = RecordCache.getInvocation(event.invokeId); // zwl, 取出之前cache的request invocation数据
         if (invocation == null) {
             log.debug("no valid invocation found in return,type={},traceId={}", invokeType, Tracer.getTraceId());
             return;
         }
-        invocation.setResponse(processor.assembleResponse(event));
+        invocation.setResponse(processor.assembleResponse(event)); // zwl: 加入Response信息
         invocation.setEnd(System.currentTimeMillis());
+        // zwl: invoke InvocationListener实现记录record
         listener.onInvocation(invocation);
     }
 
@@ -227,15 +235,16 @@ public class DefaultEventListener implements EventListener {
      * @param event throw事件
      */
     protected void doThrow(ThrowsEvent event) {
+        //zwl: 如果是回放事件, 则跳过
         if (RepeatCache.isRepeatFlow(Tracer.getTraceId())) {
             return;
         }
-        Invocation invocation = RecordCache.getInvocation(event.invokeId);
+        Invocation invocation = RecordCache.getInvocation(event.invokeId); // zwl, 取出之前cache的request invocation数据
         if (invocation == null) {
             log.debug("no valid invocation found in throw,type={},traceId={}", invokeType, Tracer.getTraceId());
             return;
         }
-        invocation.setThrowable(processor.assembleThrowable(event));
+        invocation.setThrowable(processor.assembleThrowable(event)); // zwl: 加入 Throwable信息
         invocation.setEnd(System.currentTimeMillis());
         listener.onInvocation(invocation);
     }
@@ -297,7 +306,7 @@ public class DefaultEventListener implements EventListener {
      */
     private void clearContext(Event event) {
         if (entrance && isEntranceFinish(event)) {
-            Tracer.end();
+            Tracer.end(); // zwl: 对应 Trace.start()
         }
     }
 

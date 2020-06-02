@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author zhaoyb1990
  */
+// zwl: 用于record and repeat的实现
 public class DefaultBroadcaster extends AbstractBroadcaster {
 
     /**
@@ -100,7 +101,7 @@ public class DefaultBroadcaster extends AbstractBroadcaster {
     }
 
     @Override
-    public RepeaterResult<RecordModel> pullRecord(RepeatMeta meta) {
+    public RepeaterResult<RecordModel> pullRecord(RepeatMeta meta) { // zwl: pullRecord
         String url;
         if (StringUtils.isEmpty(meta.getDatasource())) {
             url = String.format(pullRecordUrl, meta.getAppName(), meta.getTraceId());

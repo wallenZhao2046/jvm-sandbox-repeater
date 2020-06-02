@@ -11,6 +11,7 @@ package com.alibaba.jvm.sandbox.repeater.plugin.domain;
  *
  * @author zhaoyb1990
  */
+// zwl: 描述一个invocation的VO
 public class Invocation implements java.io.Serializable {
 
     /**

@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * {@link TraceGenerator} 作为{@link TraceContext#traceId}的生成器
+ * {@link TraceGenerator} 作为{@link TraceContext#traceId}的生成器  // zwl: traceId 生成器
  * <p>
  *
  * @author zhaoyb1990

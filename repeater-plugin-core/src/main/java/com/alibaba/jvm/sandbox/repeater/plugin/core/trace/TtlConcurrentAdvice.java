@@ -12,7 +12,7 @@ import com.alibaba.jvm.sandbox.repeater.plugin.domain.RepeaterConfig;
 import com.alibaba.ttl.TtlCallable;
 import com.alibaba.ttl.TtlRunnable;
 
-
+// zwl: 增强了concurrent 包具备 TTL功能, 适配了两个线程池: ThreadPoolExecutor / SchedulerThreadPoolExecutor
 /**
  * {@link TtlConcurrentAdvice} {@code TransmittableThreadLocal} 多线程适配
  *

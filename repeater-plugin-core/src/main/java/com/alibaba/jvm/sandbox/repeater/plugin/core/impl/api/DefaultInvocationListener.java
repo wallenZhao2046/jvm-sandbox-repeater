@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhaoyb1990
  */
+// zwl 默认的调用监听器, 调用record生产者的实现
 public class DefaultInvocationListener implements InvocationListener {
 
     private final static Logger log = LoggerFactory.getLogger(DefaultInvocationListener.class);
@@ -56,6 +57,7 @@ public class DefaultInvocationListener implements InvocationListener {
             if (log.isDebugEnabled()){
                 log.debug("sampleOnRecord:traceId={},rootType={},subTypes={}", recordModel.getTraceId(), invocation.getType(), assembleTypes(recordModel));
             }
+            // zwl: 请求记录record
             broadcast.sendRecord(recordModel);
         } else {
             RecordCache.cacheSubInvocation(invocation);

@@ -54,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alibaba.jvm.sandbox.repeater.plugin.Constants.REPEAT_SPRING_ADVICE_SWITCH;
 
+// repeater模块，负责的是模块对外的交互、插件装配以及一些spring的类信息捕捉
 /**
  * <p>
  *
@@ -98,6 +99,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
     public void onLoad() throws Throwable {
         //模块加载, 模块开始加载之前
         // 初始化日志框架
+        // zwl: ~/.sandbox-module/cfg/repeater-logback.xml
         LogbackUtils.init(PathUtils.getConfigPath() + "/repeater-logback.xml");
         //获取启动模式
         Mode mode = configInfo.getMode();
@@ -143,7 +145,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
                 configManager = StandaloneSwitch.instance().getConfigManager();
                 broadcaster = StandaloneSwitch.instance().getBroadcaster();
                 invocationListener = new DefaultInvocationListener(broadcaster);
-                RepeaterResult<RepeaterConfig> pr = configManager.pullConfig();
+                RepeaterResult<RepeaterConfig> pr = configManager.pullConfig(); // zwl: 从console 拉取config info
                 if (pr.isSuccess()) {
                     log.info("pull repeater config success,config={}", pr.getData());
                     ClassloaderBridge.init(loadedClassDataSource);
@@ -155,6 +157,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
         heartbeatHandler.start();
     }
 
+    // zwl: 初始化插件, 根据config的插件来初始化插件
     /**
      * 初始化插件
      *
@@ -186,14 +189,14 @@ public class RepeaterModule implements Module, ModuleLifecycle {
                         log.info("watch plugin occurred error", e);
                     }
                 }
-                // 装载回放器
+                // 装载回放器 zwl: 回放器列表
                 List<Repeater> repeaters = lifecycleManager.loadRepeaters();
                 for (Repeater repeater : repeaters) {
                     if (repeater.enable(config)) {
-                        repeater.setBroadcast(broadcaster);  // 注入广播器?
+                        repeater.setBroadcast(broadcaster);  //zwl: 注入广播器?
                     }
                 }
-                RepeaterBridge.instance().build(repeaters); // 通过RepeaterBridge 桥接器创建repeater 回放器
+                RepeaterBridge.instance().build(repeaters); //zwl: 通过RepeaterBridge 桥接器创建repeater 回放器
                 // 装载消息订阅器
                 List<SubscribeSupporter> subscribes = lifecycleManager.loadSubscribes();
                 for (SubscribeSupporter subscribe : subscribes) {
@@ -208,9 +211,10 @@ public class RepeaterModule implements Module, ModuleLifecycle {
     }
 
     /*
+    zwl:
      这个是repeat module接收回放请求的接口
 
-     该接口接收http请求, 然后发出RepeatEvent, 由EventBusInner发出Event
+     该接口接收http请求, 然后发出RepeatEvent, 由EventBusInner发出Event, 有 RepeatSubscribeSupporter 捕获 RepeatEvent
 
      问题:
         command为啥是对外http接口?
@@ -236,7 +240,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
             for (Map.Entry<String, String> entry : req.entrySet()) {
                 requestParams.put(entry.getKey(), entry.getValue());
             }
-            event.setRequestParams(requestParams);
+            event.setRequestParams(requestParams); //
             EventBusInner.post(event);
             writer.write("submit success");
         } catch (Throwable e) {
@@ -244,6 +248,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
         }
     }
 
+    // zwl: reload 接口
     /**
      * 重新加载插件
      *
@@ -283,6 +288,7 @@ public class RepeaterModule implements Module, ModuleLifecycle {
         moduleController.active();
     }
 
+    // zwl: repeatWithJson 接口
     /**
      * 回放http接口(暴露JSON回放）
      *

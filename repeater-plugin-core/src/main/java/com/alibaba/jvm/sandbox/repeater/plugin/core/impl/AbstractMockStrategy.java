@@ -27,7 +27,7 @@ public abstract class AbstractMockStrategy implements MockStrategy {
     /**
      * 选择出回放的invocation
      *
-     * @param request mock回放请求
+     * @param request mock回放请求 // zwl: select mock data的策略
      * @return 选择结果
      */
     protected abstract SelectResult select(final MockRequest request);

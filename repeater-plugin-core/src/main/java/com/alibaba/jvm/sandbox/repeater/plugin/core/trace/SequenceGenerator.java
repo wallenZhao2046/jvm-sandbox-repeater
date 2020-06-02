@@ -15,6 +15,7 @@ import com.google.common.cache.LoadingCache;
  */
 public class SequenceGenerator {
 
+    // 每个traceId 的sequenceId, 保证子调用顺序的
     private static final LoadingCache<String, AtomicInteger> SEQUENCE_CACHE = CacheBuilder
         .newBuilder()
         .expireAfterWrite(30, TimeUnit.SECONDS)

@@ -8,6 +8,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Map;
 
+
+// zwl: Identity 包括 uri schema, location, endpoint, extra
 /**
  * {@link Identity} 定义一次{@link Invocation}的标志；
  * <p>

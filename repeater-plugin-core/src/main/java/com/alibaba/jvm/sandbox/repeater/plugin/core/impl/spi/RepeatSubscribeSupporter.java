@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+//zwl: repeat subscribe 的地方
 /**
  * <p>
  *
@@ -47,8 +48,7 @@ public class RepeatSubscribeSupporter implements SubscribeSupporter<RepeatEvent>
 
 
     /*
-        处理 Event的Observer
-
+        zwl: 处理  RepeatEvent 的事件捕获器, 处理replay/repeat事件
      */
     @AllowConcurrentEvents
     @Subscribe
@@ -63,10 +63,10 @@ public class RepeatSubscribeSupporter implements SubscribeSupporter<RepeatEvent>
             }
             log.info("subscribe success params={}", req);
             final RepeatMeta meta = SerializerWrapper.hessianDeserialize(data, RepeatMeta.class);
-            // Broadcaster 是干什么的, pullRecord是从console拉record吗?
+            // zwl: Broadcaster 是干什么的, pullRecord是从console拉record吗?
             RepeaterResult<RecordModel> pr = StandaloneSwitch.instance().getBroadcaster().pullRecord(meta);
             if (pr.isSuccess()){
-                // DefaultFlowDispatcher 是做什么用的?
+                // zwl: DefaultFlowDispatcher 是做什么用的? 处理repeat的地方??
                 DefaultFlowDispatcher.instance().dispatch(meta, pr.getData());
             } else {
                 log.error("subscribe replay event failed, cause ={}", pr.getMessage());

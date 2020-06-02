@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * {@link Tracer} 应用内部全局跟踪能力
  * <p>
- * 非常核心的能力；全局的信息需要利用它来串联
+ * 非常核心的能力；全局的信息需要利用它来串联 // zwl: 串联全局信息的能力
  * <p>
  * 如果不开启{@link RepeaterConfig#useTtl}，只能录制到单线程的子调用信息
  * <p>

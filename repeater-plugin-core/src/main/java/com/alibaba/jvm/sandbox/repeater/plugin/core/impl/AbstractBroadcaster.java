@@ -44,13 +44,14 @@ public abstract class AbstractBroadcaster implements Broadcaster {
         5L, TimeUnit.MINUTES, new LinkedBlockingDeque<Runnable>(128),
         new BasicThreadFactory.Builder().namingPattern("queue-consumer-pool-%d").build(),
         new ThreadPoolExecutor.CallerRunsPolicy());
-
+// 创建4个Queue的消费者 4个线程 ??? 为什么是4个?
     public AbstractBroadcaster() {
         for (int i = 0; i < consumerThreadNum; i++) {
             executor.execute(new QueueConsumerTask());
         }
     }
 
+    // Queue的生产者, 向队列中增加元素
     @Override
     public void sendRecord(RecordModel recordModel) {
         final int size = queue.size();
@@ -80,8 +81,11 @@ public abstract class AbstractBroadcaster implements Broadcaster {
      */
     abstract protected void broadcastRepeat(RepeatModel record);
 
+    // 消费队列中元素的线程
     /**
      * 消费队列任务（线程比较消耗CPU，因为存在多次序列化动作）
+     *
+     * 消息的消费者将record 调用http 传送给 repeater-console
      */
     class QueueConsumerTask implements Runnable {
 
