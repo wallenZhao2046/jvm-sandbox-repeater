@@ -56,4 +56,10 @@ public class PersistenceFacadeApi {
         return recordService.callback(repeatId);
     }
 
+    // zwl TODO: 增加批量获取录制结果接口
+
+    // zwl TODO: 增加批量回放接口
+
+    // zwl TODO: 增加批量获取回放结果接口
+
 }

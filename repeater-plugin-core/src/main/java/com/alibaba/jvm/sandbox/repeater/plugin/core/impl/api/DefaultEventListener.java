@@ -72,6 +72,7 @@ public class DefaultEventListener implements EventListener {
             /*
              * event过滤；针对单个listener，只处理top的事件
              */
+            log.info("!!! receive " + event.type);
             if (!isTopEvent(event)) {
                 if (log.isDebugEnabled()) {
                     log.debug("not top event ,type={},event={},offset={}", invokeType, event, eventOffset.get().get());
